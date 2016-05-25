@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import scrapy
 from unicodedata import normalize
 
@@ -5,7 +7,7 @@ escapesymbols=["\t","\n"]
 def escape(txt):
 
   for i in escapesymbols: txt=txt.replace(i,"")
-  return normalize("NFKD", txt)
+  return normalize("NFKD", unicode(txt))
 
 class exhibitors(scrapy.Spider):
 
@@ -16,7 +18,7 @@ class exhibitors(scrapy.Spider):
   def parseexhibitor(self, response):
 
     name=escape(response.xpath("//*/div[@class='standard_wrapper']/h2/text()").extract()[0])
-    stand=respoanse.xpath("//*/h4/text()").extract()[0].lstrip("Stand: ")
+    stand=response.xpath("//*/h4/text()").extract()[0].lstrip("Stand: ")
 
     # Assumes description will always be in the second fila div. 
     # TO-DO (maybe): Get videos, pic urls, etc from description
@@ -42,13 +44,15 @@ class exhibitors(scrapy.Spider):
     telephone=""
     fax=""
     for item in contactinfo:
-      contactinfo=escape(contactinfo)
-      if "Tel" in item: 
-        telephone=item.strip().lstrip("Tel.: ")
+      item=escape(item)
+      if "tel" in item.lower(): 
+        telephone=item.strip().split(": ")[-1]
         if "/" in telephone: telephone=telephone.split("/")
-      elif "Fax" in item: fax=item.strip().lstrip("Fax: ")
+      elif "fax" in item.lower(): 
+        fax=item.strip().split(": ")[-1]
+        if "/" in fax: fax=fax.split("/")
       elif item.isupper(): addr.append(item)
-      else: addr.append(item)
+      elif not ":" in item: addr.append(item)
     address=" ".join(addr)
 
     # Exhibitor page may or may not have a website
@@ -85,12 +89,10 @@ class exhibitors(scrapy.Spider):
         exit()
 
     nexturl=response.xpath("//*[@class='resultados']/div[@class='tablenav']/div/a[@class='next page-numbers']/@href").extract()
-    # Next button URLs are also found in other search tabs. when only 2 tabs have it, it's the last page
-    if len(nexturl)==3: 
-      npurl=response.urljoin(nexturl[0])
-      try:
-        yield scrapy.Request(npurl, callback=self.parse)
-      except Exception as e:
-        print "Error parsing"
-        print e
-        exit()
+    npurl=response.urljoin(nexturl[0])
+    try:
+      yield scrapy.Request(npurl, callback=self.parse)
+    except Exception as e:
+      print "Error parsing"
+      print e
+      exit()
