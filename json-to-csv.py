@@ -9,7 +9,7 @@ with open("datafinal.json","r") as data:
 with open("datafinal_csv.json", "w+") as dataout:
   dataout.write("name\taddr\tfax\tstand\ttel\tweb\tcontries\tdesc\tsector\n")
   for i in dat:
-    dataout.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"%(i["name"],
+    dataout.write((u"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"%(i["name"],
                                                           i["contact"]["address"],
                                                           i["contact"]["fax"],
                                                           i["contact"]["stand"],
@@ -18,4 +18,4 @@ with open("datafinal_csv.json", "w+") as dataout:
                                                           ", ".join(i["countries"]),
                                                           i["description"],
                                                           ", ".join(i["sector"])
-                                                          ))
+                                                          )).decode('utf-8'))
