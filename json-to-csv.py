@@ -4,9 +4,9 @@
 import json
 
 with open("datafinal.json","r") as data:
-  dat=json.loads("".join(data.readlines()))
+  dat=json.load(data)
 
-with open("datafinal_csv.json", "w+") as dataout:
+with open("datafinal_csv.csv", "w+") as dataout:
   dataout.write("name\taddr\tfax\tstand\ttel\tweb\tcontries\tdesc\tsector\n")
   for i in dat:
     dataout.write((u"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"%(i["name"],
@@ -18,4 +18,4 @@ with open("datafinal_csv.json", "w+") as dataout:
                                                           ", ".join(i["countries"]),
                                                           i["description"],
                                                           ", ".join(i["sector"])
-                                                          )).decode('utf-8'))
+                                                          )).encode('utf-8'))
