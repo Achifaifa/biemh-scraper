@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import scrapy
+import geocoder
 from unicodedata import normalize
 
 escapesymbols=["\t","\n"]
@@ -52,8 +53,14 @@ class exhibitors(scrapy.Spider):
         fax=item.strip().split(": ")[-1]
         if "/" in fax: fax=fax.split("/")
       elif item.isupper(): addr.append(item)
-      elif not ":" in item: addr.append(item)
+      elif not ":" in item and all(i in item for i in [",","("]): addr.append(item)
     address=" ".join(addr)
+
+    # Geocoding
+    latitude=longitude=""
+    a=geocoder.osm(address)
+    if a.latlng:
+      latitude, longitude=a.latlng
 
     # Exhibitor page may or may not have a website
     try:                web=response.xpath("//p[@class='fila']/a/@href").extract()[0]
@@ -66,6 +73,10 @@ class exhibitors(scrapy.Spider):
               "fax": fax,
               "web": web,
               "stand": stand,
+              "coords": {
+                "latitude": latitude,
+                "longitude": longitude
+              }
             },
             "description": description,
             "sector": sector,
