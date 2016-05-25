@@ -1,19 +1,26 @@
 import scrapy
+from unicodedata import normalize
+
+escapesymbols=["\t","\n"]
+def escape(txt):
+
+  for i in escapesymbols: txt=txt.replace(i,"")
+  return normalize("NFKD", txt)
 
 class exhibitors(scrapy.Spider):
 
   name="exhibitors"
   allowed_domains=["biemh.bilbaoexhibitioncentre.com"]
-  start_urls=['http://biemh.bilbaoexhibitioncentre.com/en/exhibitor-directory/?pagenum=11&num_elem=100&nombre&pais&pabellon&sector&subsector&producto&destino=expositores&idioma=US&tab=expositores&seccli&contextual&buscar=2&letra']
+  start_urls=['http://biemh.bilbaoexhibitioncentre.com/en/exhibitor-directory/?pagenum=1&num_elem=100&nombre&pais&pabellon&sector&subsector&producto&destino=expositores&idioma=US&tab=expositores&seccli&contextual&buscar=2&letra']
 
   def parseexhibitor(self, response):
 
-    name=response.xpath("//*/div[@class='standard_wrapper']/h2/text()").extract()[0]
-    stand=response.xpath("//*/h4/text()").extract()[0].lstrip("Stand: ")
+    name=escape(response.xpath("//*/div[@class='standard_wrapper']/h2/text()").extract()[0])
+    stand=respoanse.xpath("//*/h4/text()").extract()[0].lstrip("Stand: ")
 
     # Assumes description will always be in the second fila div. 
     # TO-DO (maybe): Get videos, pic urls, etc from description
-    description="".join(response.xpath("//*/div[@class='fila'][2]/div/text()").extract()).strip()
+    description=escape("".join(response.xpath("//*/div[@class='fila'][2]/div/text()").extract()).strip())
 
     # Since the data is not ordered in the site, this takes all the data
     # and processes it later
@@ -23,6 +30,7 @@ class exhibitors(scrapy.Spider):
     categories=[]
     country_list=["Russian Federation", "United States", "United Kingdom"]
     for item in data:
+      item=escape(item)
       if item.isupper(): categories.append(item)
       elif item in country_list: countries.append(item)
       elif any(i in item for i in [",",".",":","-"," ","/"]): sector.append(item)
@@ -34,9 +42,13 @@ class exhibitors(scrapy.Spider):
     telephone=""
     fax=""
     for item in contactinfo:
-      if "Tel" in item: telephone=item.strip().lstrip("Tel.: ")
+      contactinfo=escape(contactinfo)
+      if "Tel" in item: 
+        telephone=item.strip().lstrip("Tel.: ")
+        if "/" in telephone: telephone=telephone.split("/")
       elif "Fax" in item: fax=item.strip().lstrip("Fax: ")
       elif item.isupper(): addr.append(item)
+      else: addr.append(item)
     address=" ".join(addr)
 
     # Exhibitor page may or may not have a website
@@ -72,7 +84,7 @@ class exhibitors(scrapy.Spider):
         print e
         exit()
 
-    # nexturl=response.xpath("//*[@class='resultados']/div[@class='tablenav']/div/a[@class='next page-numbers']/@href").extract()
+    nexturl=response.xpath("//*[@class='resultados']/div[@class='tablenav']/div/a[@class='next page-numbers']/@href").extract()
     # Next button URLs are also found in other search tabs. when only 2 tabs have it, it's the last page
     if len(nexturl)==3: 
       npurl=response.urljoin(nexturl[0])
