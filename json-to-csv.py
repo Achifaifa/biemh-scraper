@@ -18,4 +18,4 @@ with open("datafinal_csv.json", "w+") as dataout:
                                                           ", ".join(i["countries"]),
                                                           i["description"],
                                                           ", ".join(i["sector"])
-                                                          )).decode('utf-8'))
+                                                          )).encode('utf-8'))
