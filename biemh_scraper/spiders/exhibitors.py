@@ -44,6 +44,7 @@ class exhibitors(scrapy.Spider):
     addr=[]
     telephone=""
     fax=""
+    contactmisc=[]
     for item in contactinfo:
       item=escape(item)
       if "tel" in item.lower(): 
@@ -54,6 +55,7 @@ class exhibitors(scrapy.Spider):
         if "/" in fax: fax=fax.split("/")
       elif item.isupper(): addr.append(item)
       elif not ":" in item and all(i in item for i in [",","("]): addr.append(item)
+      elif ":" in item and not "web" in item.lower(): contactmisc. append(item)
     address=" ".join(addr)
 
     # Geocoding
@@ -76,7 +78,8 @@ class exhibitors(scrapy.Spider):
               "coords": {
                 "latitude": latitude,
                 "longitude": longitude
-              }
+              },
+              "misc": contactmisc
             },
             "description": description,
             "sector": sector,
