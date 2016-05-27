@@ -7,9 +7,9 @@ with open("datafinal.json","r") as data:
   dat=json.load(data)
 
 with open("datafinal_csv.csv", "w+") as dataout:
-  dataout.write("name\taddress\tlatitude\tlongitude\tfax\tstand\ttel\tweb\tcontries\tdesc\tsector\n")
+  dataout.write("name\taddress\tlatitude\tlongitude\tfax\tstand\ttel\tweb\tcountries\tdesc\tsector\tcategories\tmisc\n")
   for i in dat:
-    dataout.write((u"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"%(i["name"],
+    dataout.write((u"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"%(i["name"],
                                                           i["contact"]["address"],
                                                           i["contact"]["coords"]["latitude"],
                                                           i["contact"]["coords"]["longitude"],
@@ -20,5 +20,6 @@ with open("datafinal_csv.csv", "w+") as dataout:
                                                           ", ".join(i["countries"]),
                                                           i["description"],
                                                           ", ".join(i["sector"]),
-                                                          ", ".join(i["contact"]["contactmisc"])
+                                                          ", ".join(i["categories"]),
+                                                          ", ".join(i["contact"]["misc"])
                                                           )).encode('utf-8'))
