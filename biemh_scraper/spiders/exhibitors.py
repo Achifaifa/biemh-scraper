@@ -70,6 +70,7 @@ class exhibitors(scrapy.Spider):
       # PO boxes fail a lot with previous filters
       elif "PO" in item: addr.append(item)
 
+    # Address replacing was useful for OSM geocoding. google maps doesn't need it
     addrreplaces={"PG": "poligono", "AVDA": "avenida", "IND.": "industrial", "AV":"avenida", "PL": "plaza", "CL": "calle",
                   "CR": "carretera", "POL.": "poligono", "C/": "calle", "PQ": "parque", "EMP.": "empresarial"}
     
@@ -84,8 +85,6 @@ class exhibitors(scrapy.Spider):
     a=geocoder.google(address)
     if a.latlng:
       latitude, longitude=a.latlng
-
-    
 
     # Exhibitor page may or may not have a website
     try:                web=response.xpath("//p[@class='fila']/a/@href").extract()[0]
