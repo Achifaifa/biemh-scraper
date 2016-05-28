@@ -2,7 +2,7 @@
 
 import csv
 
-baseurl="<a href='https://www.openstreetmap.org/search?query="
+baseurl="<a href='https://www.openstreetmap.org/?"
 
 with open("data/datafinal.html","w+") as dataout, open("data/datafinal_csv.csv", "r") as csvin:
   d=csv.reader(csvin, delimiter='\t')
@@ -25,7 +25,9 @@ with open("data/datafinal.html","w+") as dataout, open("data/datafinal_csv.csv",
   
   for n,row in enumerate(d):
     dataout.write("  <tr>\n")
-    location="location" if row[2]=="latitude" else baseurl+" ".join(row[2:4])+"#map=5/45.136/3.867'>%s</a>"%row[1] if row[2] else ""
+
+    location="Location" if not n else baseurl+"mlat=%s&mlon=%s#map=5/44.856/3.779'>%s</a>"%(row[2],row[3],row[1]) if row[2] else ""
+
     url="Site" if row[7]=="web" else row[7].lstrip("http://").lstrip("www.") if row[7] else ""
     url="Site" if url=="Site" else "<a href='http://%s'>%s</a>"%(url,url) if url else ""
     outstruct=[row[0]]+[row[5].replace(" ",""),row[6],url, location]
